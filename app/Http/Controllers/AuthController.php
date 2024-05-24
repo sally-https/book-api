@@ -76,6 +76,7 @@ public function studentRegister(Request $request)
     $validator = Validator::make($request->all(), [
         'student_id' => 'required|unique:students,student_id|min:9|max:9',
         'name' => 'required|string|max:255',
+        'phone' => 'required|string|max:255',
         'password' => 'required|string|min:6',
     ]);
 
@@ -90,6 +91,7 @@ public function studentRegister(Request $request)
     $student = new Student();
     $student->student_id = $request->input('student_id');
     $student->name = $request->input('name');
+    $student->phone = $request->input('phone');
     $student->email = $student_email;
     $student->password = Hash::make($request->input('password'));
     $student->save();
@@ -100,8 +102,9 @@ public function studentRegister(Request $request)
         'success' => true,
         'message' => 'Student registered successfully',
         'token' => $token,
+        'role' => 'student',
         'student' => $student,
-    ], 201);
+    ], 200);
 }
 
    /**

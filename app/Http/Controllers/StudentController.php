@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Book;
+use App\Jobs\SendStudentBookBorrowNotification;
 use Picqer\Barcode\BarcodeGeneratorPNG;
 use App\Models\BorrowedBook;
 use Illuminate\Support\Facades\Validator;
@@ -103,16 +104,17 @@ public function studentDashboard()
             ], 400);
         }
 
-        // Check if the student has any overdue books
+       // Check if the student has any overdue books that haven't been returned
         $overdueBooks = BorrowedBook::where('student_id', $student->id)
             ->where('return_date', '<', Carbon::now())
+            ->where('return_status', 'borrowed')
             ->exists();
 
         if ($overdueBooks) {
             return response()->json([
-                'success' => false,
-                'message' => 'You have overdue books. Please return them before borrowing a new book.',
-            ], 400);
+            'success' => false,
+            'message' => 'You have overdue books. Please return them before borrowing a new book.',
+        ], 400);
         }
 
         // Check if the book is available for borrowing
@@ -135,6 +137,9 @@ public function studentDashboard()
         // Decrement the book quantity
         $book->quantity--;
         $book->save();
+
+        SendStudentBookBorrowNotification::dispatch($borrowedBook);
+
 
         return response()->json([
             'success' => true,

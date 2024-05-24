@@ -9,7 +9,7 @@ use Tymon\JWTAuth\Contracts\JWTSubject;
 class Student extends Authenticatable implements JWTSubject{
 
     use HasFactory;
-    protected $fillable = ['name','student_id','email', 'password'];
+    protected $fillable = ['name','student_id','email', 'phone', 'password'];
     protected $hidden = ['password']; // Add this line to hide the password attribute
     /**
      * Get the identifier that will be stored in the subject claim of the JWT.
